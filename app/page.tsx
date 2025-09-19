@@ -199,11 +199,11 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen bg-black p-4">
       {/* Anime-style background pattern */}
       <div className="fixed inset-0 opacity-5 pointer-events-none">
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }} />
       </div>
 
@@ -211,17 +211,17 @@ export default function App() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block relative">
-            <h1 className="text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-4">
+            <h1 className="text-6xl font-bold text-white mb-4">
               VENOM
             </h1>
-            <div className="absolute -top-2 -right-2 w-4 h-4 bg-black dark:bg-white rounded-full animate-pulse" />
-            <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gray-600 dark:bg-gray-400 rounded-full" />
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-white rounded-full animate-pulse" />
+            <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gray-400 rounded-full" />
           </div>
-          <p className="text-xl text-gray-600 dark:text-gray-400 font-medium tracking-wide">
+          <p className="text-xl text-white font-medium tracking-wide">
             WALLET CONNECTION
           </p>
           <div className="mt-4 flex justify-center">
-            <Badge variant="outline" className="text-xs font-mono">
+            <Badge variant="outline" className="text-xs font-mono text-white border-white">
               ANIME EDITION v2.0
             </Badge>
           </div>
@@ -230,15 +230,15 @@ export default function App() {
         {/* Main Content */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Connection Card */}
-          <Card className="col-span-full md:col-span-2 lg:col-span-2 border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+          <Card className="col-span-full md:col-span-2 lg:col-span-2 border-2 border-white bg-black shadow-xl">
             <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 rounded-full flex items-center justify-center mb-4">
-                <Wallet className="w-8 h-8 text-white dark:text-gray-900" />
+              <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                <Wallet className="w-8 h-8 text-black" />
               </div>
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold text-white">
                 {!venomConnect ? "Initialize Connection" : address ? "Connected" : "Ready to Connect"}
               </CardTitle>
-              <CardDescription className="text-base">
+              <CardDescription className="text-base text-white">
                 {!venomConnect 
                   ? "Start your journey into the Venom ecosystem" 
                   : address 
@@ -253,7 +253,7 @@ export default function App() {
                     onClick={onInitButtonClick} 
                     disabled={isConnecting}
                     size="lg" 
-                    className="w-full max-w-sm bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
+                    className="w-full max-w-sm bg-white hover:bg-gray-200 text-black font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
                   >
                     {isConnecting ? (
                       <>
@@ -275,7 +275,7 @@ export default function App() {
                       onClick={onConnectButtonClick} 
                       disabled={isConnecting}
                       size="lg" 
-                      className="w-full bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
+                      className="w-full bg-white hover:bg-gray-200 text-black font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
                     >
                       {isConnecting ? (
                         <>
@@ -294,7 +294,7 @@ export default function App() {
                       onClick={onDisconnectButtonClick} 
                       variant="outline" 
                       size="lg" 
-                      className="w-full border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold py-6 text-lg transition-all duration-300"
+                      className="w-full border-2 border-white text-white hover:bg-gray-800 font-bold py-6 text-lg transition-all duration-300"
                     >
                       DISCONNECT
                     </Button>
@@ -305,16 +305,16 @@ export default function App() {
           </Card>
 
           {/* Theme & Status Card */}
-          <Card className="border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+          <Card className="border-2 border-white bg-black shadow-xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-white">
                 {theme === "dark" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 Theme Control
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <Badge variant="secondary" className="text-lg px-4 py-2 font-mono">
+                <Badge variant="secondary" className="text-lg px-4 py-2 font-mono text-white bg-gray-800">
                   {theme.toUpperCase()}
                 </Badge>
               </div>
@@ -322,7 +322,7 @@ export default function App() {
                 <Button 
                   onClick={onToggleThemeButtonClick} 
                   variant="outline" 
-                  className="w-full border-2 transition-all duration-300 hover:scale-105"
+                  className="w-full border-2 border-white text-white hover:bg-gray-800 transition-all duration-300 hover:scale-105"
                 >
                   SWITCH THEME
                 </Button>
@@ -333,26 +333,26 @@ export default function App() {
 
         {/* Wallet Info */}
         {address && (
-          <Card className="mt-8 border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+          <Card className="mt-8 border-2 border-white bg-black shadow-xl">
             <CardHeader>
-              <CardTitle>Wallet Information</CardTitle>
+              <CardTitle className="text-white">Wallet Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                  <label className="text-sm font-bold text-white uppercase tracking-wide">
                     Address
                   </label>
-                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
-                    <code className="text-sm font-mono break-all">{address}</code>
+                  <div className="p-3 bg-black rounded-lg border-2 border-white">
+                    <code className="text-sm font-mono break-all text-white">{address}</code>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                  <label className="text-sm font-bold text-white uppercase tracking-wide">
                     Balance
                   </label>
-                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
-                    <code className="text-sm font-mono">
+                  <div className="p-3 bg-black rounded-lg border-2 border-white">
+                    <code className="text-sm font-mono text-white">
                       {balance ? `${(balance / 10 ** 9).toFixed(4)} VENOM` : "Loading..."}
                     </code>
                   </div>
@@ -364,7 +364,7 @@ export default function App() {
 
         {/* Footer */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+          <p className="text-sm text-white font-mono">
             POWERED BY VENOM NETWORK • DESIGNED WITH ❤️
           </p>
         </div>
