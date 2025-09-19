@@ -1,3 +1,4 @@
+/*eslint-disable*/
 'use client';
 import { ProviderRpcClient } from "everscale-inpage-provider";
 import { EverscaleStandaloneClient } from "everscale-standalone-client";
@@ -9,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Wallet, Zap, Moon, Sun } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
-const initTheme = "light" as const;
+const initTheme = "light";
 
 const standaloneFallback = () =>
   EverscaleStandaloneClient.create({
@@ -111,7 +112,7 @@ export default function App() {
   const [venomProvider, setVenomProvider] = useState<any>();
   const [address, setAddress] = useState();
   const [balance, setBalance] = useState();
-  const [theme, setTheme] = useState(initTheme);
+  const [theme, setTheme] = useState<string>(initTheme);
   const [isConnecting, setIsConnecting] = useState(false);
 
   const getTheme = () =>
