@@ -1,103 +1,374 @@
-import Image from "next/image";
+'use client';
+import { ProviderRpcClient } from "everscale-inpage-provider";
+import { EverscaleStandaloneClient } from "everscale-standalone-client";
+import { useEffect, useState } from "react";
+import { VenomConnect } from "venom-connect";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Wallet, Zap, Moon, Sun } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
-export default function Home() {
+const initTheme = "light" as const;
+
+const standaloneFallback = () =>
+  EverscaleStandaloneClient.create({
+    connection: {
+      id: 1000,
+      group: "venom_testnet",
+      type: "jrpc",
+      data: {
+        endpoint: "https://jrpc.venom.foundation/rpc",
+      },
+    },
+  });
+
+const initVenomConnect = async () => {
+  return new VenomConnect({
+    theme: initTheme,
+    checkNetworkId: 1000,
+    providersOptions: {
+      venomwallet: {
+        walletWaysToConnect: [
+          {
+            package: ProviderRpcClient,
+            packageOptions: {
+              fallback:
+                VenomConnect.getPromise("venomwallet", "extension") ||
+                (() => Promise.reject()),
+              forceUseFallback: true,
+            },
+            packageOptionsStandalone: {
+              fallback: standaloneFallback,
+              forceUseFallback: true,
+            },
+            id: "extension",
+            type: "extension",
+          },
+        ],
+        defaultWalletWaysToConnect: [
+          "mobile",
+          "ios",
+          "android",
+        ],
+      },
+      oneartwallet: {
+        walletWaysToConnect: [
+          {
+            package: ProviderRpcClient,
+            packageOptions: {
+              fallback:
+                VenomConnect.getPromise("oneartwallet", "extension") ||
+                (() => Promise.reject()),
+              forceUseFallback: true,
+            },
+            packageOptionsStandalone: {
+              fallback: standaloneFallback,
+              forceUseFallback: true,
+            },
+            id: "extension",
+            type: "extension",
+          },
+        ],
+        defaultWalletWaysToConnect: [
+          "mobile",
+          "ios",
+          "android",
+        ],
+      },
+      oxychatwallet: {
+        walletWaysToConnect: [
+          {
+            package: ProviderRpcClient,
+            packageOptions: {
+              fallback:
+                VenomConnect.getPromise("oxychatwallet", "extension") ||
+                (() => Promise.reject()),
+              forceUseFallback: true,
+            },
+            packageOptionsStandalone: {
+              fallback: standaloneFallback,
+              forceUseFallback: true,
+            },
+            id: "extension",
+            type: "extension",
+          },
+        ],
+        defaultWalletWaysToConnect: [
+          "mobile",
+          "ios",
+          "android",
+        ],
+      },
+    },
+  });
+};
+
+const themesList = ["light", "dark", "venom"];
+
+export default function App() {
+  const [venomConnect, setVenomConnect] = useState<any>();
+  const [venomProvider, setVenomProvider] = useState<any>();
+  const [address, setAddress] = useState();
+  const [balance, setBalance] = useState();
+  const [theme, setTheme] = useState(initTheme);
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const getTheme = () =>
+    venomConnect?.getInfo()?.themeConfig?.name?.toString?.() || "light";
+
+  const onToggleThemeButtonClick = async () => {
+    const currentTheme = getTheme();
+    const nextTheme = currentTheme === "light" ? "dark" : currentTheme === "dark" ? "venom" : "light";
+    await venomConnect?.updateTheme(nextTheme);
+    setTheme(getTheme());
+  };
+
+  const getAddress = async (provider: any) => {
+    const providerState = await provider?.getProviderState?.();
+    const address = providerState?.permissions.accountInteraction?.address.toString();
+    return address;
+  };
+
+  const getBalance = async (provider: any, _address: string) => {
+    try {
+      const providerBalance = await provider?.getBalance?.(_address);
+      return providerBalance;
+    } catch (error) {
+      return undefined;
+    }
+  };
+
+  const checkAuth = async (_venomConnect: any) => {
+    const auth = await _venomConnect?.checkAuth();
+    if (auth) await getAddress(_venomConnect);
+  };
+
+  const onInitButtonClick = async () => {
+    setIsConnecting(true);
+    try {
+      const initedVenomConnect = await initVenomConnect();
+      setVenomConnect(initedVenomConnect);
+      await checkAuth(initedVenomConnect);
+    } catch (error) {
+      console.error('Failed to initialize VenomConnect:', error);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const onConnectButtonClick = async () => {
+    setIsConnecting(true);
+    try {
+      venomConnect?.connect();
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const onDisconnectButtonClick = async () => {
+    venomProvider?.disconnect();
+  };
+
+  const check = async (_provider: any) => {
+    const _address = _provider ? await getAddress(_provider) : undefined;
+    const _balance = _provider && _address ? await getBalance(_provider, _address) : undefined;
+
+    setAddress(_address);
+    setBalance(_balance);
+
+    if (_provider && _address) {
+      setTimeout(() => {
+        check(_provider);
+      }, 7000);
+    }
+  };
+
+  const onConnect = async (provider: any) => {
+    setVenomProvider(provider);
+    check(provider);
+  };
+
+  useEffect(() => {
+    const off = venomConnect?.on("connect", onConnect);
+    return () => {
+      off?.();
+    };
+  }, [venomConnect]);
+
+
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      {/* Anime-style background pattern */}
+      <div className="fixed inset-0 opacity-5 pointer-events-none">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="relative z-10 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-block relative">
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-4">
+              VENOM
+            </h1>
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-black dark:bg-white rounded-full animate-pulse" />
+            <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-gray-600 dark:bg-gray-400 rounded-full" />
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-400 font-medium tracking-wide">
+            WALLET CONNECTION
+          </p>
+          <div className="mt-4 flex justify-center">
+            <Badge variant="outline" className="text-xs font-mono">
+              ANIME EDITION v2.0
+            </Badge>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Main Content */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {/* Connection Card */}
+          <Card className="col-span-full md:col-span-2 lg:col-span-2 border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 rounded-full flex items-center justify-center mb-4">
+                <Wallet className="w-8 h-8 text-white dark:text-gray-900" />
+              </div>
+              <CardTitle className="text-2xl font-bold">
+                {!venomConnect ? "Initialize Connection" : address ? "Connected" : "Ready to Connect"}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {!venomConnect 
+                  ? "Start your journey into the Venom ecosystem" 
+                  : address 
+                  ? "Your wallet is successfully connected" 
+                  : "Choose your preferred connection method"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {!venomConnect ? (
+                <div className="text-center">
+                  <Button 
+                    onClick={onInitButtonClick} 
+                    disabled={isConnecting}
+                    size="lg" 
+                    className="w-full max-w-sm bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    {isConnecting ? (
+                      <>
+                        <Zap className="w-5 h-5 mr-2 animate-spin" />
+                        INITIALIZING...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-5 h-5 mr-2" />
+                        INITIALIZE VENOM
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {!address ? (
+                    <Button 
+                      onClick={onConnectButtonClick} 
+                      disabled={isConnecting}
+                      size="lg" 
+                      className="w-full bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-bold py-6 text-lg transition-all duration-300 transform hover:scale-105"
+                    >
+                      {isConnecting ? (
+                        <>
+                          <Zap className="w-5 h-5 mr-2 animate-spin" />
+                          CONNECTING...
+                        </>
+                      ) : (
+                        <>
+                          <Wallet className="w-5 h-5 mr-2" />
+                          CONNECT WALLET
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={onDisconnectButtonClick} 
+                      variant="outline" 
+                      size="lg" 
+                      className="w-full border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold py-6 text-lg transition-all duration-300"
+                    >
+                      DISCONNECT
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Theme & Status Card */}
+          <Card className="border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {theme === "dark" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                Theme Control
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center">
+                <Badge variant="secondary" className="text-lg px-4 py-2 font-mono">
+                  {theme.toUpperCase()}
+                </Badge>
+              </div>
+              {venomConnect && (
+                <Button 
+                  onClick={onToggleThemeButtonClick} 
+                  variant="outline" 
+                  className="w-full border-2 transition-all duration-300 hover:scale-105"
+                >
+                  SWITCH THEME
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Wallet Info */}
+        {address && (
+          <Card className="mt-8 border-2 border-gray-200 dark:border-gray-700 shadow-xl">
+            <CardHeader>
+              <CardTitle>Wallet Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Address
+                  </label>
+                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                    <code className="text-sm font-mono break-all">{address}</code>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Balance
+                  </label>
+                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                    <code className="text-sm font-mono">
+                      {balance ? `${(balance / 10 ** 9).toFixed(4)} VENOM` : "Loading..."}
+                    </code>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Footer */}
+        <div className="mt-12 text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+            POWERED BY VENOM NETWORK • DESIGNED WITH ❤️
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
